@@ -1,5 +1,5 @@
 
-# Symfony 6 + PHP 8.0.13 with Docker
+# Symfony CLI + PHP-CLI 8.2 with Docker
 
 **ONLY for DEV, not for production**
 
@@ -9,7 +9,7 @@ A very simple Docker-compose to discover Symfony 6 with PHP 8.0.13 in 5 minutes
 Clone the project
 
 ```bash
-  git@github.com:yoanbernabeu/symfony6-php8-in-docker-compose.git
+  git@github.com:ThibautGr/docker-php82-sfcli-es7.git
 ```
 
 Run the docker-compose
@@ -22,7 +22,7 @@ Run the docker-compose
 Log into the PHP container
 
 ```bash
-  docker exec -it php8-sf6 bash
+  docker exec -it php bash
 ```
 
 Create your Symfony application and launch the internal server
@@ -71,3 +71,6 @@ Out of the box, this docker-compose is designed for a Linux operating system, pr
 ## Author
 
 - [@yoanbernabeu](https://github.com/yoanbernabeu)
+
+Fork by 
+- [@thibautGer](https://github.com/ThibautGr)
