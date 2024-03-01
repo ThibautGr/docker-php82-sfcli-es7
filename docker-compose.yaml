@@ -1,27 +1,69 @@
 version: '3.7'
 services:
-    php8-sf6:
-        container_name: php8-sf6
+    php:
+        container_name: php
         build: php8-sf6
         ports:
             - "9000:8000"
         volumes:
-            - ./project:/var/www/html
+            - ./project:/var/www/html:rw
 
     mailer:
         image: schickling/mailcatcher
         ports: [1025, 1080]
 
     database:
-        image: postgres:13-alpine
+        image: mysql:8.3.0
         environment:
-            POSTGRES_DB: app
-            POSTGRES_PASSWORD: ChangeMe
-            POSTGRES_USER: symfony
+            MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
         volumes:
-            - db-data:/var/lib/postgresql/data:rw
+            - "db-data:/var/lib/mysql:rw"
+            #-  ./docker/db/data:/var/lib/mysql:rw
         ports:
-            - "5432"
+            # To allow the host machine to access the ports below, modify the lines below.
+            # For example, to allow the host to connect to port 3306 on the container, you would change
+            # "3306" to "3306:3306". Where the first port is exposed to the host and the second is the container port.
+            # See https://docs.docker.com/compose/compose-file/compose-file-v3/#ports for more information.
+            - 3306:3306
+        #    deploy: # peut potentiellement utiliser trop de mémoire par rapport à l'usage
+        #      resources:
+        #        limits:
+        #          memory: 4G
+
+    phpmyadmin:
+        image: phpmyadmin
+        depends_on:
+            - database
+        ports:
+            - 8080:80
+        environment:
+            PMA_HOST: database
+
+    elasticsearch:
+      image: docker.elastic.co/elasticsearch/elasticsearch:7.17.16
+      container_name: elasticsearch
+      ports:
+        - "9209:9200"
+      environment:
+        - "discovery.type=single-node"
+        - "bootstrap.memory_lock=true"
+        - "ES_JAVA_OPTS=-Xms1G -Xmx1G"
+        - "xpack.security.enabled=false"
+        - "http.cors.enabled=true"
+        - "http.cors.allow-origin=*"
+      volumes:
+        - esdata:/usr/share/elasticsearch/data:rw
+
+
+    elasticsearch-head:
+      container_name: sb-elasticsearch-head
+      depends_on:
+        - elasticsearch
+      image: tobias74/elasticsearch-head:6
+      ports:
+        - "9109:9100"
 
 volumes:
   db-data:
+  esdata: {}

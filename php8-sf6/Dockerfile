@@ -1,4 +1,6 @@
-FROM php:8.0.13-cli
+FROM php:8.2-cli
+ARG TIMEZONE=Europe/Paris
+
 
 RUN apt-get update \
     &&  apt-get install -y --no-install-recommends \
@@ -12,13 +14,19 @@ RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen  \
 RUN curl -sS https://getcomposer.org/installer | php -- \
     &&  mv composer.phar /usr/local/bin/composer
 
+
 RUN curl -sS https://get.symfony.com/cli/installer | bash \
-    &&  mv /root/.symfony/bin/symfony /usr/local/bin
+    && mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
+
 
 RUN docker-php-ext-configure \
             intl \
     &&  docker-php-ext-install \
             pdo pdo_mysql pdo_pgsql opcache intl zip calendar dom mbstring gd xsl
+
+RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && echo ${TIMEZONE} > /etc/timezone \
+    && printf '[PHP]\ndate.timezone = "%s"\n', ${TIMEZONE} > /usr/local/etc/php/conf.d/tzone.ini \
+    && "date"
 
 RUN pecl install apcu && docker-php-ext-enable apcu
 
